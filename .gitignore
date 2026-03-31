@@ -1,4 +1,12 @@
+cli.js
 node_modules/
+!node_modules/@ant/
+!node_modules/@ant/claude-for-chrome-mcp/
+!node_modules/@ant/computer-use-mcp/
+!node_modules/@ant/computer-use-input/
+!node_modules/@ant/computer-use-swift/
+!node_modules/@anthropic-ai/sandbox-runtime/
+!node_modules/@anthropic-ai/mcpb/
 dist/
 build/
 .env
