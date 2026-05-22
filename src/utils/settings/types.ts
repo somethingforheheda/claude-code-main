@@ -1068,6 +1068,31 @@ export const SettingsSchema = lazySchema(() =>
             'Useful for enterprise administrators to add organization-specific context ' +
             '(e.g., "All plugins from our internal marketplace are vetted and approved.").',
         ),
+      // Conversation logging configuration
+      // Note: thinking, tool results, and system prompts are always logged (not configurable)
+      conversationLogging: z
+        .object({
+          enabled: z
+            .boolean()
+            .optional()
+            .describe('Enable conversation logging to JSONL files'),
+          outputDir: z
+            .string()
+            .optional()
+            .describe('Output directory for log files (default: .logs)'),
+          maxTextLength: z
+            .number()
+            .int()
+            .positive()
+            .optional()
+            .describe('Max text field length before truncation (default: 50000)'),
+        })
+        .optional()
+        .describe(
+          'Conversation logging configuration. ' +
+            'When enabled, captures every LLM turn to JSONL files for debugging and analysis. ' +
+            'Note: thinking, tool results, and system prompts are always logged for completeness.',
+        ),
     })
     .passthrough(),
 )

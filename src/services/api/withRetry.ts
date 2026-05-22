@@ -44,6 +44,10 @@ import {
   checkMockRateLimitError,
   isMockRateLimitError,
 } from '../rateLimitMocking.js'
+import {
+  isConversationLoggingEnabled,
+  logRetry as logConversationRetry,
+} from '../conversationLogger.js'
 import { REPEATED_529_ERROR_MESSAGE } from './errors.js'
 import { extractConnectionErrorDetails } from './errorUtils.js'
 
@@ -257,6 +261,15 @@ export async function* withRetry<T>(
         `API error (attempt ${attempt}/${maxRetries + 1}): ${error instanceof APIError ? `${error.status} ${error.message}` : errorMessage(error)}`,
         { level: 'error' },
       )
+
+      // Conversation logging: log retry event
+      if (isConversationLoggingEnabled() && error instanceof Error) {
+        logConversationRetry(
+          attempt,
+          error,
+          error instanceof APIError ? error.status : undefined,
+        )
+      }
 
       // Fast mode fallback: on 429/529, either wait and retry (short delays)
       // or fall back to standard speed (long delays) to avoid cache thrashing.

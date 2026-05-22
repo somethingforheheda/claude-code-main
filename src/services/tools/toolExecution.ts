@@ -19,6 +19,11 @@ import {
   sanitizeToolNameForAnalytics,
 } from 'src/services/analytics/metadata.js'
 import {
+  isConversationLoggingEnabled,
+  logToolResult,
+  logToolError as logConversationToolError,
+} from '../conversationLogger.js'
+import {
   addToToolDuration,
   getCodeEditToolDecisionCounter,
   getStatsStore,
@@ -1356,6 +1361,11 @@ async function checkPermissionsAndCallTool(
       ...mcpToolDetailsForAnalytics(tool.name, mcpServerType, mcpServerBaseUrl),
     })
 
+    // Conversation logging: log tool result
+    if (isConversationLoggingEnabled()) {
+      logToolResult(toolUseID, result.data)
+    }
+
     // Enrich tool parameters with git commit ID from successful git commit output
     if (
       isToolDetailsLoggingEnabled() &&
@@ -1687,6 +1697,11 @@ async function checkPermissionsAndCallTool(
         }),
         ...(mcpServerScope && { mcp_server_scope: mcpServerScope }),
       })
+
+      // Conversation logging: log tool error
+      if (isConversationLoggingEnabled()) {
+        logConversationToolError(toolUseID, errorMessage(error))
+      }
     }
     const content = formatError(error)
 
