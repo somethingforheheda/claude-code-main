@@ -17,7 +17,11 @@
     "baseUrl": ".",
     "paths": {
       "bun:bundle": ["./src/types/bun-bundle.d.ts"],
-      "src/*": ["./src/*"]
+      "src/*": ["./src/*"],
+      "@anthropic-ai/bedrock-sdk": ["./stubs/@anthropic-ai/bedrock-sdk"],
+      "@anthropic-ai/foundry-sdk": ["./stubs/@anthropic-ai/foundry-sdk"],
+      "@anthropic-ai/vertex-sdk": ["./stubs/@anthropic-ai/vertex-sdk"],
+      "@aws-sdk/client-bedrock": ["./stubs/@aws-sdk/client-bedrock"]
     }
   },
   "include": ["src/**/*"],

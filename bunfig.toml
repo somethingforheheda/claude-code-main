@@ -1,5 +1,12 @@
 [build]
-alias = { "src" = "./src", "react/compiler-runtime" = "react-compiler-runtime" }
+alias = {
+  "src" = "./src",
+  "react/compiler-runtime" = "react-compiler-runtime",
+  "@anthropic-ai/bedrock-sdk" = "./stubs/@anthropic-ai/bedrock-sdk",
+  "@anthropic-ai/foundry-sdk" = "./stubs/@anthropic-ai/foundry-sdk",
+  "@anthropic-ai/vertex-sdk" = "./stubs/@anthropic-ai/vertex-sdk",
+  "@aws-sdk/client-bedrock" = "./stubs/@aws-sdk/client-bedrock"
+}
 
 [install]
 registry = "https://registry.npmmirror.com"
