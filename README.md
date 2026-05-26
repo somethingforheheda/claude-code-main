@@ -10,8 +10,14 @@
 ### 1. 安装依赖
 
 ```bash
+# 使用 npm 安装依赖（推荐，Bun 可能因网络问题失败）
+npm install
+
+# 或尝试使用 Bun
 bun install
 ```
+
+> **注意**：本项目包含 4 个 Anthropic 私有包的 stubs（位于 `stubs/` 目录），用于解决编译时的依赖缺失问题。这些 stubs 已通过 `bunfig.toml` 配置的路径别名自动映射，无需额外操作。
 
 ### 2. 编译
 
@@ -93,7 +99,7 @@ alias = { "src" = "./src", "react/compiler-runtime" = "react-compiler-runtime" }
 
 ## 私有包存根说明
 
-以下 4 个 Anthropic 内部私有包在 npm 上不公开，已在 `node_modules/` 中创建功能存根：
+以下 4 个 Anthropic 内部私有包在 npm 上不公开，已在 `stubs/` 目录中创建功能存根，并通过 `bunfig.toml` 路径别名自动映射：
 
 | 包名 | 对应功能 | 影响 |
 |------|----------|------|
@@ -102,7 +108,16 @@ alias = { "src" = "./src", "react/compiler-runtime" = "react-compiler-runtime" }
 | `@anthropic-ai/mcpb` | MCP 插件包（.dxt 格式）安装 | 插件市场不可用 |
 | `@anthropic-ai/sandbox-runtime` | 沙箱文件/网络权限隔离 | 沙箱模式不可用 |
 
-核心对话、代码编辑、工具调用等主要功能不受影响。
+**新增 stubs（位于 `stubs/` 目录）：**
+
+| 包名 | 对应功能 | 影响 |
+|------|----------|------|
+| `@anthropic-ai/bedrock-sdk` | AWS Bedrock 集成 | Bedrock 模式不可用 |
+| `@anthropic-ai/foundry-sdk` | Anthropic Foundry 集成 | Foundry 模式不可用 |
+| `@anthropic-ai/vertex-sdk` | Google Vertex AI 集成 | Vertex 模式不可用 |
+| `@aws-sdk/client-bedrock` | AWS Bedrock 客户端 | Bedrock 模型列表不可用 |
+
+核心对话、代码编辑、工具调用等主要功能不受影响。`npm install` 不会覆盖这些 stubs。
 
 ---
 

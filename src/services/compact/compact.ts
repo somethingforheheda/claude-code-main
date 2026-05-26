@@ -10,6 +10,10 @@ const sessionTranscriptModule = feature('KAIROS')
 import { APIUserAbortError } from '@anthropic-ai/sdk'
 import { markPostCompaction } from 'src/bootstrap/state.js'
 import { getInvokedSkillsForAgent } from '../../bootstrap/state.js'
+import {
+  isConversationLoggingEnabled,
+  logCompaction,
+} from '../conversationLogger.js'
 import type { QuerySource } from '../../constants/querySource.js'
 import type { CanUseToolFn } from '../../hooks/useCanUseTool.js'
 import type { Tool, ToolUseContext } from '../../Tool.js'
@@ -397,6 +401,9 @@ export async function compactConversation(
     if (messages.length === 0) {
       throw new Error(ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)
     }
+
+    // Log compaction event for conversation logging
+    logCompaction()
 
     const preCompactTokenCount = tokenCountWithEstimation(messages)
 

@@ -95,6 +95,17 @@ import {
 import { tokenCountFromLastAPIResponse } from '../../utils/tokens.js'
 import { getDynamicConfig_BLOCKS_ON_INIT } from '../analytics/growthbook.js'
 import {
+  isConversationLoggingEnabled,
+  logRetry as logConversationRetry,
+  logTextOutput,
+  logThinkingOutput,
+  logToolCall,
+  logTurnComplete,
+  logTurnError,
+  logTurnStart,
+  setPendingInput,
+} from '../conversationLogger.js'
+import {
   currentLimits,
   extractQuotaStatusFromError,
   extractQuotaStatusFromHeaders,
@@ -1758,6 +1769,22 @@ async function* queryModel(
     })
   }
 
+  // Conversation logging: capture input before API call
+  if (isConversationLoggingEnabled()) {
+    setPendingInput(
+      systemPrompt,
+      messagesForAPI,
+    )
+    logTurnStart(
+      {
+        id: options.model,
+        providerID: getAPIProvider(),
+        variant: 'default',
+      },
+      options.agentId ?? 'default',
+    )
+  }
+
   const newMessages: AssistantMessage[] = []
   let ttftMs = 0
   let partialMessage: BetaMessage | undefined = undefined
@@ -1999,6 +2026,14 @@ async function* queryModel(
                   ...part.content_block,
                   input: '',
                 }
+                // Conversation logging: log tool call
+                if (isConversationLoggingEnabled()) {
+                  logToolCall(
+                    part.content_block.id,
+                    part.content_block.name,
+                    {}, // Input will be captured as it streams in
+                  )
+                }
                 break
               case 'server_tool_use':
                 contentBlocks[part.index] = {
@@ -2189,6 +2224,29 @@ async function* queryModel(
               })
               throw new Error('Message not found')
             }
+            // Conversation logging: capture text and thinking output
+            if (isConversationLoggingEnabled()) {
+              if (contentBlock.type === 'text' && 'text' in contentBlock) {
+                logTextOutput(contentBlock.text as string)
+              } else if (contentBlock.type === 'thinking' && 'thinking' in contentBlock) {
+                logThinkingOutput(
+                  part.index.toString(),
+                  contentBlock.thinking as string,
+                )
+              } else if (
+                (contentBlock.type === 'tool_use' || contentBlock.type === 'server_tool_use') &&
+                'input' in contentBlock &&
+                'id' in contentBlock &&
+                'name' in contentBlock
+              ) {
+                // Update tool call with parsed input
+                logToolCall(
+                  contentBlock.id as string,
+                  contentBlock.name as string,
+                  contentBlock.input,
+                )
+              }
+            }
             const m: AssistantMessage = {
               message: {
                 ...partialMessage,
@@ -2254,6 +2312,21 @@ async function* queryModel(
               usage,
               options.model,
             )
+
+            // Conversation logging: log turn complete
+            if (isConversationLoggingEnabled() && lastMsg) {
+              logTurnComplete(
+                {
+                  input_tokens: usage.input_tokens ?? 0,
+                  output_tokens: usage.output_tokens ?? 0,
+                  cache_read_input_tokens: usage.cache_read_input_tokens,
+                  cache_creation_input_tokens: usage.cache_creation_input_tokens,
+                },
+                stopReason,
+                costUSD,
+                lastMsg.message.id,
+              )
+            }
 
             const refusalMessage = getErrorMessageIfRefusal(
               part.delta.stop_reason,
@@ -2596,6 +2669,11 @@ async function* queryModel(
       clearStreamIdleTimers()
     }
   } catch (errorFromRetry) {
+    // Conversation logging: log turn error
+    if (isConversationLoggingEnabled()) {
+      logTurnError(errorMessage(errorFromRetry))
+    }
+
     // FallbackTriggeredError must propagate to query.ts, which performs the
     // actual model switch. Swallowing it here would turn the fallback into a
     // no-op — the user would just see "Model fallback triggered: X -> Y" as

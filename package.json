@@ -9,7 +9,8 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "bun build src/entrypoints/cli.tsx --outfile cli.js --target bun --define MACRO.VERSION=\"2.1.88\" --define MACRO.BUILD_TIME=\"2025-01-01\" --define MACRO.FEEDBACK_CHANNEL=\"https://github.com/anthropics/claude-code/issues\" --define MACRO.ISSUES_EXPLAINER=\"https://github.com/anthropics/claude-code/issues\" --define MACRO.NATIVE_PACKAGE_URL=\"https://npmjs.com\" --define MACRO.PACKAGE_URL=\"https://npmjs.com\" --define MACRO.VERSION_CHANGELOG=\"\"",
+    "build": "bun build src/entrypoints/cli.tsx --outfile cli.js --target bun --define MACRO.VERSION='\"2.1.88\"' --define MACRO.BUILD_TIME='\"2025-01-01\"' --define MACRO.FEEDBACK_CHANNEL=\"https://github.com/anthropics/claude-code/issues\" --define MACRO.ISSUES_EXPLAINER=\"https://github.com/anthropics/claude-code/issues\" --define MACRO.NATIVE_PACKAGE_URL=\"https://npmjs.com\" --define MACRO.PACKAGE_URL=\"https://npmjs.com\" --define MACRO.VERSION_CHANGELOG=\"\"",
+    "build:binary": "bun build src/entrypoints/cli.tsx --compile --outfile claude --define MACRO.VERSION='\"2.1.88\"' --define MACRO.BUILD_TIME='\"2025-01-01\"' --define MACRO.FEEDBACK_CHANNEL=\"https://github.com/anthropics/claude-code/issues\" --define MACRO.ISSUES_EXPLAINER=\"https://github.com/anthropics/claude-code/issues\" --define MACRO.NATIVE_PACKAGE_URL=\"https://npmjs.com\" --define MACRO.PACKAGE_URL=\"https://npmjs.com\" --define MACRO.VERSION_CHANGELOG=\"\"",
     "start": "bun cli.js",
     "typecheck": "tsc --noEmit"
   },

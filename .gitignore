@@ -10,9 +10,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 bun-debug.log*
+package-lock.json
 .DS_Store
 *.pem
 .cache/
 coverage/
 .nyc_output/
 *.tsbuildinfo
+.claude
+.logs
